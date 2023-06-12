@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Greg & Blaine Song Picker</title>
+  <style>
+    html, body {
+    overflow: auto;
+    height: 100%; }
+    body {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      box-sizing: border-box;
+      background-color: #332863;
+      color: #fff;
+      font-size: 1.6em;
+      font-family: Inter, Arial, sans-serif;
+      text-align: center;
+      margin: 0;
+      padding: 24px;
+      height: 100%;
+    }
+    span { opacity: .5; }
+    button {
+      color: inherit;
+      font-family: inherit;
+      font-size: .6em;
+      padding: 12px 24px;
+      background: none;
+      border: 1px solid rgba(255,255,255,.1);
+      cursor: pointer;
+      border-radius: 8px;
+    }
+    button:hover { border-color: rgba(255,255,255,.15); background-color: rgba(255,255,255,.1); }
+    #song-picker {
+      position: absolute;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+    button:active { background-color: }
+
+  </style>
+</head>
+<body>
+  <span>Why don't you play</span>
+  <h1 id="result"></h1>
+  <button id="song-picker" onclick="pickRandomSong()">Pick a Random Song</button>
+
+  <script>
+    // List of jazz standards
+    var jazzStandards = [
+      "Afternoon in Paris",
+      "All the Things You Are",
+      "Anthropology",
+      "Barbados",
+      "Beautiful Love",
+      "Beatrice",
+      "Blues for Alice",
+      "Cherokee",
+      "Cheryl",
+      "Confirmation",
+      "Corcovado",
+      "Days of Wine and Roses",
+      "Dexterity",
+      "Donna Lee",
+      "Don't Get Around Much Any More",
+      "Falling Grace",
+      "Foolin' Myself",
+      "Giant Steps",
+      "Green Dolphin St",
+      "Have You Met Miss Jones",
+      "Hottentot",
+      "I Remember You",
+      "Joy Spring",
+      "Just Friends",
+      "Moment's Notice",
+      "Oleo",
+      "On the Sunny Side of the Street",
+      "Peri's Scope",
+      "Quasimodo",
+      "Relaxin' at the Camarillo",
+      "Rosetta",
+      "Solar",
+      "Someday My Prince Will Come",
+      "Stella by Starlight",
+      "There Is No Greater Love",
+      "There Will Never Another You",
+      "They Can't Take That Away From Me",
+      "Walkin' Up",
+      "Wave",
+      "What Is This Thing Called Love",
+      "Who Can I Turn To",
+      "Yardbird Suite",
+      "You Stepped Out Of A Dream",
+      "You'd Be So Nice To Come Home To"
+    ];
+
+    var selectedSongs = [];
+
+    // Function to pick a random song from the list
+    function pickRandomSong() {
+      if (jazzStandards.length === 0) {
+        document.getElementById("result").innerHTML = "All songs have been selected!";
+        return;
+      }
+
+      var randomNumber = Math.floor(Math.random() * jazzStandards.length);
+      var randomSong = jazzStandards[randomNumber];
+      selectedSongs.push(randomSong);
+      jazzStandards.splice(randomNumber, 1);
+      document.getElementById("result").innerHTML = randomSong;
+    }
+    window.onload = function() {
+  // Your code here
+  pickRandomSong(); // Run the function you want to execute on load
+};
+  </script>
+</body>
+</html>
