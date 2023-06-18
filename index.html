@@ -24,23 +24,30 @@
       padding: 24px;
       height: 100%;
     }
+    h3 { margin: 0; }
     span { opacity: .5; }
     button {
       color: inherit;
+      font-weight: 800;
       font-family: inherit;
-      font-size: .6em;
+      font-size: .75em;
       padding: 12px 24px;
       background: none;
       border: 1px solid rgba(255,255,255,.1);
       cursor: pointer;
       border-radius: 8px;
+      margin-right: 24px;
     }
+    button:last-child {margin-right: 0;}
     button:hover { border-color: rgba(255,255,255,.15); background-color: rgba(255,255,255,.1); }
-    #song-picker {
+    .button-group {
+      display: flex;
+      justify-content: center;
       position: absolute;
       bottom: 24px;
-      left: 50%;
-      transform: translateX(-50%);
+/*      left: 50%;
+      transform: translateX(-50%);*/
+      width: 100%;
     }
     button:active { background-color: }
 
@@ -49,7 +56,12 @@
 <body>
   <span>Why don't you play</span>
   <h1 id="result"></h1>
-  <button id="song-picker" onclick="pickRandomSong()">Pick a Random Song</button>
+  <h3 id="key" style="opacity: 0">&nbsp;</h2>
+  <div class="button-group">
+    <button id="song-picker" onclick="pickRandomSong()">New Song</button>
+    <button id="key-picker" onclick="pickRandomKey()">New Key</button>
+  </div>
+
 
   <script>
     // List of jazz standards
@@ -101,9 +113,11 @@
     ];
 
     var selectedSongs = [];
+    var selectedKey = "";
 
     // Function to pick a random song from the list
     function pickRandomSong() {
+      clearSelectedKey()
       if (jazzStandards.length === 0) {
         document.getElementById("result").innerHTML = "All songs have been selected!";
         return;
@@ -114,7 +128,27 @@
       selectedSongs.push(randomSong);
       jazzStandards.splice(randomNumber, 1);
       document.getElementById("result").innerHTML = randomSong;
+
     }
+
+    // Function to pick a random key
+    function pickRandomKey() {
+      var keys = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
+      var randomKeyIndex = Math.floor(Math.random() * keys.length);
+      var randomKey = keys[randomKeyIndex];
+      selectedKey = randomKey;
+      var keyElement = document.getElementById("key");
+      keyElement.innerHTML = "in " + randomKey;
+      keyElement.style.opacity = 1; // Show the key element
+    }
+
+    // Function to clear the selected key
+    function clearSelectedKey() {
+      selectedKey = "";
+      var keyElement = document.getElementById("key");
+      keyElement.style.opacity = 0; // Hide the key element
+    }
+
     window.onload = function() {
   // Your code here
   pickRandomSong(); // Run the function you want to execute on load
