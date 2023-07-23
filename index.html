@@ -1,135 +1,144 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Greg & Blaine Song Picker</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com"> 
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin> 
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+  <title>Random PDF Page</title>
   <style>
     html, body {
-    overflow: auto;
-    height: 100%; }
-    body {
+      margin: 0;
+      width: 100%;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    #pdf-container {
+      width: 100%;
+      height: calc(100vh - 96px); /* Adjust the value to accommodate the control buttons */
       display: flex;
-      flex-direction: column;
       justify-content: center;
       align-items: center;
-      box-sizing: border-box;
-      background-color: #332863;
-      color: #fff;
-      font-size: 1.6em;
-      font-family: "Inter", Arial, sans-serif;
-      text-align: center;
-      margin: 0;
-      padding: 24px;
-      height: 100%;
     }
-    h3 { margin: 0; }
-    span { opacity: .5; }
-    button {
-      color: inherit;
-      font-weight: 800;
-      font-family: inherit;
-      font-size: .75em;
-      padding: 12px 24px;
-      background: none;
-      border: 1px solid rgba(255,255,255,.1);
-      cursor: pointer;
-      border-radius: 8px;
-      margin-right: 24px;
-    }
-    button:last-child {margin-right: 0;}
-    button:hover { border-color: rgba(255,255,255,.15); background-color: rgba(255,255,255,.1); }
-    .button-group {
-      display: flex;
-      justify-content: center;
-      position: absolute;
-      bottom: 24px;
-/*      left: 50%;
-      transform: translateX(-50%);*/
-      width: 100%;
-    }
-    button:active { background-color: }
 
+    .controls {
+      position: fixed;
+      right: 24px;
+    }
+
+    #controls-bottom {
+      bottom: 24px;
+    }
+
+    #controls-top {
+      top: 24px;
+    }
+
+    button {
+      font-size: 16px;
+      border: 1px solid rgba(0, 0, 0, .1);
+      box-shadow: 0px 2px 4px 0 rgba(0, 0, 0, .1);
+      padding: 12px 24px;
+      border-radius: 8px;
+      background-color: #fff;
+      cursor: pointer;
+    }
   </style>
+  <script src="js/pdf.js"></script>
 </head>
 <body>
-  <span>Why don't you play</span>
-  <h1 id="result"></h1>
-  <h3 id="key" style="opacity: 0">&nbsp;</h2>
-  <div class="button-group">
-    <button id="song-picker" onclick="pickRandomSong()">New Song</button>
-    <button id="key-picker" onclick="pickRandomKey()">New Key</button>
-  </div>
-
+  <section id="controls-top" class="controls">
+    <button id="new-song-button">New Song</button>
+    <button id="new-key-button">New Key</button>
+  </section>
+  <section id="controls-bottom" class="controls">
+    <button id="previous-page">&#8592;</button>
+    <button id="next-page">&#8594;</button>
+  </section>
+  <div id="pdf-container"></div>
 
   <script>
-    // List of jazz standards
-    var jazzStandards = [
-      "Afternoon in Paris",
-      "All the Things You Are",
-      "Anthropology",
-      "Barbados",
-      "Beautiful Love",
-      "Beatrice",
-      "Blues for Alice",
-      "Cherokee",
-      "Cheryl",
-      "Confirmation",
-      "Corcovado",
-      "Days of Wine and Roses",
-      "Dexterity",
-      "Donna Lee",
-      "Don't Get Around Much Any More",
-      "Falling Grace",
-      "Foolin' Myself",
-      "Giant Steps",
-      "Green Dolphin St",
-      "Have You Met Miss Jones",
-      "Hottentot",
-      "I Remember You",
-      "Joy Spring",
-      "Just Friends",
-      "Moment's Notice",
-      "Oleo",
-      "On the Sunny Side of the Street",
-      "Peri's Scope",
-      "Quasimodo",
-      "Relaxin' at the Camarillo",
-      "Rosetta",
-      "Solar",
-      "Someday My Prince Will Come",
-      "Stella by Starlight",
-      "There Is No Greater Love",
-      "There Will Never Be Another You",
-      "They Can't Take That Away From Me",
-      "Walkin' Up",
-      "Wave",
-      "What Is This Thing Called Love",
-      "Who Can I Turn To",
-      "Yardbird Suite",
-      "You Stepped Out Of A Dream",
-      "You'd Be So Nice To Come Home To"
-    ];
-
-    var selectedSongs = [];
+    var currentPage = null;
+    var totalPages = 0;
+    var selectedPages = [];
     var selectedKey = "";
 
-    // Function to pick a random song from the list
-    function pickRandomSong() {
-      clearSelectedKey()
-      if (jazzStandards.length === 0) {
-        document.getElementById("result").innerHTML = "All songs have been selected!";
-        return;
+    // Replace "your_pdf_file.pdf" with the path to your PDF file.
+    var pdfPath = 'charts.pdf';
+
+    // Fetch total number of pages in the PDF.
+    fetch(pdfPath)
+      .then(response => response.blob())
+      .then(blob => {
+        var fileReader = new FileReader();
+        fileReader.onload = function() {
+          var typedArray = new Uint8Array(this.result);
+          var pdf = pdfjsLib.getDocument(typedArray);
+          pdf.promise.then(function(pdfDoc) {
+            totalPages = pdfDoc.numPages;
+
+            // Trigger "New Song" button click on page load
+            document.getElementById('new-song-button').click();
+          });
+        };
+        fileReader.readAsArrayBuffer(blob);
+      });
+
+    function getRandomPage() {
+      if (selectedPages.length === totalPages) {
+        selectedPages = []; // Reset selectedPages array if all pages have been selected
       }
 
-      var randomNumber = Math.floor(Math.random() * jazzStandards.length);
-      var randomSong = jazzStandards[randomNumber];
-      selectedSongs.push(randomSong);
-      jazzStandards.splice(randomNumber, 1);
-      document.getElementById("result").innerHTML = randomSong;
-
+      var randomPage = Math.floor(Math.random() * totalPages) + 1;
+      while (selectedPages.includes(randomPage)) {
+        randomPage = Math.floor(Math.random() * totalPages) + 1;
+      }
+      currentPage = randomPage;
+      selectedPages.push(randomPage);
+      return currentPage;
     }
+
+    function renderPage(page) {
+      var container = document.getElementById('pdf-container');
+      var canvas = document.createElement('canvas');
+
+      pdfjsLib.getDocument(pdfPath)
+        .promise.then(function(pdfDoc) {
+          pdfDoc.getPage(page).then(function(pdfPage) {
+            var viewport = pdfPage.getViewport({ scale: 1 });
+            var scale = Math.min(container.clientWidth / viewport.width, container.clientHeight / viewport.height);
+
+            viewport = pdfPage.getViewport({ scale: scale });
+            canvas.height = viewport.height;
+            canvas.width = viewport.width;
+
+            var renderContext = {
+              canvasContext: canvas.getContext('2d'),
+              viewport: viewport
+            };
+
+            pdfPage.render(renderContext).promise.then(function() {
+              container.innerHTML = '';
+              container.appendChild(canvas);
+            });
+          });
+        });
+    }
+
+    document.getElementById('previous-page').addEventListener('click', function() {
+      if (currentPage > 1) {
+        currentPage--;
+        renderPage(currentPage);
+      }
+    });
+
+    document.getElementById('next-page').addEventListener('click', function() {
+      if (currentPage < totalPages) {
+        currentPage++;
+        renderPage(currentPage);
+      }
+    });
+
+    document.getElementById('new-song-button').addEventListener('click', function() {
+      var page = getRandomPage();
+      renderPage(page);
 
     // Function to pick a random key
     function pickRandomKey() {
@@ -148,11 +157,8 @@
       var keyElement = document.getElementById("key");
       keyElement.style.opacity = 0; // Hide the key element
     }
-
-    window.onload = function() {
-  // Your code here
-  pickRandomSong(); // Run the function you want to execute on load
-};
+    
+    });
   </script>
 </body>
 </html>
